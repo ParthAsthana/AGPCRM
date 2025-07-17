@@ -5,6 +5,7 @@ const rateLimit = require('express-rate-limit');
 const config = require('./config');
 const database = require('./database/db');
 
+// Trigger redeploy to pick up PostgreSQL DATABASE_URL
 // Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
