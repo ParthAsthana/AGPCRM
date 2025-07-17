@@ -34,6 +34,7 @@ const corsOptions = {
         'https://agpcrm.vercel.app',
         'https://agp-crm.vercel.app', 
         'https://agpcrm-frontend.vercel.app',
+        'https://agpcrm-lemon.vercel.app',
         process.env.FRONTEND_URL
       ].filter(Boolean)
     : ['http://localhost:3000', 'http://127.0.0.1:3000'],
