@@ -13,6 +13,9 @@ const taskRoutes = require('./routes/tasks');
 
 const app = express();
 
+// Trust proxy when running behind Railway, Vercel, etc.
+app.set('trust proxy', 1);
+
 // Security: Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
