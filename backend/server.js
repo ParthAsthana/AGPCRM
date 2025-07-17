@@ -357,6 +357,66 @@ async function createTables() {
   await database.run(commentsSQL);
 }
 
+// Simple admin user creation endpoint
+app.post('/api/create-admin', async (req, res) => {
+  try {
+    console.log('🚀 Creating admin user...');
+    
+    const bcrypt = require('bcryptjs');
+    const config = require('./config');
+    
+    // Simple users table creation
+    const createUsersTable = `
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        role TEXT NOT NULL DEFAULT 'employee',
+        phone TEXT,
+        department TEXT,
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+    
+    await database.run(createUsersTable);
+    console.log('✅ Users table created');
+
+    // Check if admin exists
+    const adminExists = await database.get('SELECT id FROM users WHERE email = $1', [config.admin.email]);
+    
+    if (!adminExists) {
+      const hashedPassword = await bcrypt.hash(config.admin.password, 10);
+      
+      await database.run(`
+        INSERT INTO users (name, email, password, role, department)
+        VALUES ($1, $2, $3, $4, $5)
+      `, ['Admin User', config.admin.email, hashedPassword, 'admin', 'Management']);
+      
+      console.log('✅ Admin user created successfully');
+    } else {
+      console.log('ℹ️ Admin user already exists');
+    }
+    
+    res.json({
+      status: 'SUCCESS',
+      message: 'Admin user created successfully',
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Admin creation failed:', error);
+    res.status(500).json({
+      status: 'ERROR',
+      message: 'Admin creation failed',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Debug endpoint to check environment variables
 app.get('/api/debug-env', (req, res) => {
   const envVars = {
