@@ -6,6 +6,8 @@ const config = require('./config');
 const database = require('./database/db');
 
 // Trigger redeploy to pick up PostgreSQL DATABASE_URL
+// Deploy timestamp: 2025-07-17 18:30
+// Restart after database initialization: 18:37
 // Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
