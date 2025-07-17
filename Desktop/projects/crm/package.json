@@ -2,12 +2,14 @@
   "name": "agp-crm",
   "version": "1.0.0",
   "description": "AGP CRM - Client and Task Management System for Chartered Accountant Practice",
+  "main": "backend/server.js",
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm start",
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
-    "build": "echo 'Use build:frontend for frontend build or build:backend for backend'",
+    "install": "cd backend && npm install",
+    "build": "cd backend && npm install && npm run init-db",
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "cd backend && npm install",
     "start": "cd backend && npm start",
@@ -20,5 +22,8 @@
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^7.6.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 } 
