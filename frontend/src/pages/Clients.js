@@ -875,7 +875,7 @@ const Clients = () => {
                 >
                   Client Details
                 </button>
-                {/* <button
+                <button
                   onClick={() => setActiveTab('documents')}
                   className={`py-4 px-1 border-b-2 font-medium text-sm ${
                     activeTab === 'documents'
@@ -887,7 +887,7 @@ const Clients = () => {
                     <FileText className="h-4 w-4" />
                     <span>Documents</span>
                   </div>
-                </button> */}
+                </button>
               </nav>
             </div>
 

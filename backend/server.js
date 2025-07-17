@@ -10,7 +10,7 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const clientRoutes = require('./routes/clients');
 const taskRoutes = require('./routes/tasks');
-// const documentRoutes = require('./routes/documents');
+const documentRoutes = require('./routes/documents');
 
 const app = express();
 
@@ -63,7 +63,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/tasks', taskRoutes);
-// app.use('/api/documents', documentRoutes);
+app.use('/api/documents', documentRoutes);
 
 // Serve uploaded files
 app.use('/api/uploads', express.static('uploads'));
