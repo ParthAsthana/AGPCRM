@@ -278,6 +278,8 @@ const ClientModal = ({ client, isOpen, onClose, onSave, employees = [] }) => {
     last_conversation: ''
   });
   const [loading, setLoading] = useState(false);
+  const [documentsToUpload, setDocumentsToUpload] = useState([]);
+  const [uploadingDocuments, setUploadingDocuments] = useState(false);
 
   useEffect(() => {
     if (client) {
@@ -302,18 +304,69 @@ const ClientModal = ({ client, isOpen, onClose, onSave, employees = [] }) => {
         last_conversation: ''
       });
     }
+    // Reset documents to upload when modal opens/changes
+    setDocumentsToUpload([]);
   }, [client]);
+
+  const handleDocumentAdd = () => {
+    setDocumentsToUpload([...documentsToUpload, {
+      id: Date.now(),
+      file: null,
+      category: 'general',
+      description: ''
+    }]);
+  };
+
+  const handleDocumentRemove = (docId) => {
+    setDocumentsToUpload(documentsToUpload.filter(doc => doc.id !== docId));
+  };
+
+  const handleDocumentUpdate = (docId, field, value) => {
+    setDocumentsToUpload(documentsToUpload.map(doc => 
+      doc.id === docId ? { ...doc, [field]: value } : doc
+    ));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      let clientId;
+      
       if (client) {
         await axios.put(`/clients/${client.id}`, formData);
+        clientId = client.id;
       } else {
-        await axios.post('/clients', formData);
+        const response = await axios.post('/clients', formData);
+        clientId = response.data.client.id;
       }
+
+      // Upload documents if any were selected
+      if (documentsToUpload.length > 0 && clientId) {
+        setUploadingDocuments(true);
+        
+        for (const doc of documentsToUpload) {
+          const uploadFormData = new FormData();
+          uploadFormData.append('document', doc.file);
+          uploadFormData.append('category', doc.category);
+          uploadFormData.append('description', doc.description);
+
+          try {
+            await axios.post(`/documents/clients/${clientId}/upload`, uploadFormData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            });
+          } catch (uploadError) {
+            console.error('Error uploading document:', uploadError);
+            alert(`Failed to upload ${doc.file.name}: ${uploadError.response?.data?.error || 'Unknown error'}`);
+          }
+        }
+        
+        setUploadingDocuments(false);
+      }
+
       onSave();
       onClose();
     } catch (error) {
@@ -321,6 +374,7 @@ const ClientModal = ({ client, isOpen, onClose, onSave, employees = [] }) => {
       alert('Error saving client: ' + (error.response?.data?.error || 'Unknown error'));
     } finally {
       setLoading(false);
+      setUploadingDocuments(false);
     }
   };
 
@@ -560,6 +614,97 @@ const ClientModal = ({ client, isOpen, onClose, onSave, employees = [] }) => {
             />
           </div>
 
+          {/* Document Upload Section */}
+          <div className="border-t pt-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-gray-900">Documents</h3>
+              <button
+                type="button"
+                onClick={handleDocumentAdd}
+                className="btn-secondary text-sm flex items-center space-x-1"
+                disabled={loading || uploadingDocuments}
+              >
+                <Plus className="h-4 w-4" />
+                <span>Add Document</span>
+              </button>
+            </div>
+            
+            {documentsToUpload.map((doc) => (
+              <div key={doc.id} className="border rounded-lg p-4 mb-4 bg-gray-50">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      PDF File
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file && file.type === 'application/pdf') {
+                          handleDocumentUpdate(doc.id, 'file', file);
+                        } else {
+                          alert('Please select a PDF file');
+                          e.target.value = '';
+                        }
+                      }}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Category
+                    </label>
+                    <select
+                      value={doc.category}
+                      onChange={(e) => handleDocumentUpdate(doc.id, 'category', e.target.value)}
+                      className="input-field"
+                    >
+                      <option value="general">General</option>
+                      <option value="tax_documents">Tax Documents</option>
+                      <option value="financial_statements">Financial Statements</option>
+                      <option value="contracts">Contracts</option>
+                      <option value="compliance">Compliance</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Description
+                    </label>
+                    <input
+                      type="text"
+                      value={doc.description}
+                      onChange={(e) => handleDocumentUpdate(doc.id, 'description', e.target.value)}
+                      className="input-field"
+                      placeholder="Brief description"
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex justify-end mt-2">
+                  <button
+                    type="button"
+                    onClick={() => handleDocumentRemove(doc.id)}
+                    className="text-red-600 hover:text-red-800 text-sm flex items-center space-x-1"
+                    disabled={loading || uploadingDocuments}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    <span>Remove</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+            
+            {documentsToUpload.length === 0 && (
+              <p className="text-gray-500 text-sm text-center py-4">
+                No documents selected. Click "Add Document" to upload PDFs for this client.
+              </p>
+            )}
+          </div>
+
           <div className="flex justify-end space-x-3 pt-4 border-t">
             <button
               type="button"
@@ -572,9 +717,9 @@ const ClientModal = ({ client, isOpen, onClose, onSave, employees = [] }) => {
             <button
               type="submit"
               className="btn-primary"
-              disabled={loading}
+              disabled={loading || uploadingDocuments}
             >
-              {loading ? 'Saving...' : 'Save Client'}
+              {loading ? 'Saving Client...' : uploadingDocuments ? 'Uploading Documents...' : 'Save Client'}
             </button>
           </div>
         </form>

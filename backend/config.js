@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 module.exports = {
-  port: process.env.PORT || 8000,
+  port: process.env.PORT || 5001,
   jwtSecret: process.env.JWT_SECRET || 'agp_crm_secret_key_change_in_production',
   nodeEnv: process.env.NODE_ENV || 'development',
   // PostgreSQL connection (production) or SQLite (development)
