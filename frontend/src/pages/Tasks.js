@@ -595,6 +595,14 @@ const Tasks = () => {
     if (isAdmin) {
       fetchEmployees();
     }
+    
+    // Check URL params to auto-open modal
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'new') {
+      setShowModal(true);
+      // Clean up URL
+      window.history.replaceState({}, document.title, '/tasks');
+    }
   }, [searchTerm, filterStatus, filterPriority, filterAssigned]);
 
   const fetchTasks = async () => {

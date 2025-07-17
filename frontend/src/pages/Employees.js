@@ -396,6 +396,14 @@ const Employees = () => {
   useEffect(() => {
     fetchEmployees();
     fetchStats();
+    
+    // Check URL params to auto-open modal
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'new') {
+      setShowModal(true);
+      // Clean up URL
+      window.history.replaceState({}, document.title, '/employees');
+    }
   }, [searchTerm, filterRole, filterStatus]);
 
   const fetchEmployees = async () => {

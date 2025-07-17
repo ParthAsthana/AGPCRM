@@ -12,7 +12,9 @@ export const useAuth = () => {
 };
 
 // Configure axios defaults
-const API_BASE_URL = 'https://agpcrm-production.up.railway.app/api';
+const API_BASE_URL = process.env.NODE_ENV === 'development' 
+  ? 'http://localhost:5001/api' 
+  : 'https://agpcrm-production.up.railway.app/api';
 axios.defaults.baseURL = API_BASE_URL;
 
 // Add request interceptor to include auth token (except for auth endpoints)

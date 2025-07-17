@@ -219,7 +219,7 @@ const Dashboard = () => {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
-            onClick={() => window.location.href = '/clients/new'}
+            onClick={() => window.location.href = '/clients?action=new'}
             className="btn-primary text-left p-4 rounded-lg"
           >
             <Briefcase className="h-5 w-5 mb-2" />
@@ -227,7 +227,7 @@ const Dashboard = () => {
             <span className="block text-xs opacity-75">Create a new client profile</span>
           </button>
           <button
-            onClick={() => window.location.href = '/tasks/new'}
+            onClick={() => window.location.href = '/tasks?action=new'}
             className="btn-secondary text-left p-4 rounded-lg"
           >
             <CheckSquare className="h-5 w-5 mb-2" />
@@ -236,7 +236,7 @@ const Dashboard = () => {
           </button>
           {isAdmin && (
             <button
-              onClick={() => window.location.href = '/employees/new'}
+              onClick={() => window.location.href = '/employees?action=new'}
               className="btn-secondary text-left p-4 rounded-lg"
             >
               <Users className="h-5 w-5 mb-2" />
