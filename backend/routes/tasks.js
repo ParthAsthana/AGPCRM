@@ -196,7 +196,7 @@ router.post('/', authenticateToken, validateRequired(['title', 'assigned_to']), 
     } = req.body;
 
     // Validate assigned_to user exists
-    const assignedUser = await database.get('SELECT id, name FROM users WHERE id = ? AND is_active = 1', [assigned_to]);
+    const assignedUser = await database.get('SELECT id, name FROM users WHERE id = ? AND is_active = true', [assigned_to]);
     if (!assignedUser) {
       return res.status(400).json({ error: 'Assigned user not found or inactive' });
     }
@@ -275,7 +275,7 @@ router.put('/:id', authenticateToken, validateRequired(['title']), async (req, r
     // Only admin or task creator can change assigned_to
     let actualAssignedTo = existingTask.assigned_to;
     if (assigned_to && (isAdmin || req.user.id === existingTask.assigned_by)) {
-      const assignedUser = await database.get('SELECT id FROM users WHERE id = ? AND is_active = 1', [assigned_to]);
+      const assignedUser = await database.get('SELECT id FROM users WHERE id = ? AND is_active = true', [assigned_to]);
       if (!assignedUser) {
         return res.status(400).json({ error: 'Assigned user not found or inactive' });
       }
@@ -438,7 +438,7 @@ router.get('/stats/summary', authenticateToken, async (req, res) => {
       database.get(`SELECT COUNT(*) as total FROM tasks ${whereClause ? whereClause + ' AND' : 'WHERE'} status = 'in_progress'`, [...params]),
       database.get(`SELECT COUNT(*) as total FROM tasks ${whereClause ? whereClause + ' AND' : 'WHERE'} status = 'completed'`, [...params]),
       database.get(`SELECT COUNT(*) as total FROM tasks ${whereClause ? whereClause + ' AND' : 'WHERE'} priority = 'urgent'`, [...params]),
-      database.get(`SELECT COUNT(*) as total FROM tasks ${whereClause ? whereClause + ' AND' : 'WHERE'} due_date < date('now') AND status NOT IN ('completed', 'cancelled')`, [...params])
+      database.get(`SELECT COUNT(*) as total FROM tasks ${whereClause ? whereClause + ' AND' : 'WHERE'} due_date < CURRENT_DATE AND status NOT IN ('completed', 'cancelled')`, [...params])
     ]);
 
     res.json({
@@ -470,7 +470,7 @@ router.get('/stats/workload', authenticateToken, requireAdmin, async (req, res) 
         COUNT(CASE WHEN t.priority = 'urgent' THEN 1 END) as urgent_tasks
       FROM users u
       LEFT JOIN tasks t ON u.id = t.assigned_to
-      WHERE u.role = 'employee' AND u.is_active = 1
+      WHERE u.role = 'employee' AND u.is_active = true
       GROUP BY u.id, u.name
       ORDER BY total_tasks DESC
     `);

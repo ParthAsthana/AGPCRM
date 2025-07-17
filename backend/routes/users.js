@@ -238,7 +238,7 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
 
     // Soft delete by deactivating
     await database.run(
-      'UPDATE users SET is_active = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      'UPDATE users SET is_active = false, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
       [userId]
     );
 
@@ -254,10 +254,10 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
 router.get('/stats/summary', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const stats = await Promise.all([
-      database.get('SELECT COUNT(*) as total FROM users WHERE is_active = 1'),
-      database.get('SELECT COUNT(*) as total FROM users WHERE role = "admin" AND is_active = 1'),
-      database.get('SELECT COUNT(*) as total FROM users WHERE role = "employee" AND is_active = 1'),
-      database.get('SELECT COUNT(*) as total FROM users WHERE is_active = 0')
+      database.get('SELECT COUNT(*) as total FROM users WHERE is_active = true'),
+      database.get('SELECT COUNT(*) as total FROM users WHERE role = ? AND is_active = true', ['admin']),
+      database.get('SELECT COUNT(*) as total FROM users WHERE role = ? AND is_active = true', ['employee']),
+      database.get('SELECT COUNT(*) as total FROM users WHERE is_active = false')
     ]);
 
     res.json({

@@ -177,7 +177,7 @@ router.post('/', authenticateToken, validateRequired(['name']), async (req, res)
 
     // Validate assigned_to user exists if provided
     if (assigned_to && isAdmin) {
-      const assignedUser = await database.get('SELECT id FROM users WHERE id = ? AND is_active = 1', [assigned_to]);
+      const assignedUser = await database.get('SELECT id FROM users WHERE id = ? AND is_active = true', [assigned_to]);
       if (!assignedUser) {
         return res.status(400).json({ error: 'Assigned user not found or inactive' });
       }
