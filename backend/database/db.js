@@ -168,7 +168,11 @@ class Database {
   convertToPostgreSQL(sql) {
     if (this.type !== 'postgresql') return sql;
 
-    return sql
+    // Convert parameter placeholders from ? to $1, $2, etc.
+    let paramIndex = 1;
+    const convertedSql = sql.replace(/\?/g, () => `$${paramIndex++}`);
+
+    return convertedSql
       // Replace AUTOINCREMENT with SERIAL (handled in table creation)
       .replace(/INTEGER PRIMARY KEY AUTOINCREMENT/gi, 'SERIAL PRIMARY KEY')
       // Replace DATETIME with TIMESTAMP
