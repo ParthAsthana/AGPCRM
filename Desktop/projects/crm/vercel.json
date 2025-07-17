@@ -1,8 +1,8 @@
 {
-  "buildCommand": "cd frontend && npm install --force && npm run build",
+  "version": 2,
+  "buildCommand": "./build.sh",
   "outputDirectory": "frontend/build",
-  "framework": "create-react-app",
-  "installCommand": "cd frontend && npm install --force",
+  "installCommand": "npm install --global react-scripts",
   "routes": [
     {
       "src": "/static/(.*)",
