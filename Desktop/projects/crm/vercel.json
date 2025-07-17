@@ -1,8 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "./build.sh",
   "outputDirectory": "frontend/build",
-  "installCommand": "npm install --global react-scripts",
+  "buildCommand": "echo 'Using pre-built files'",
   "routes": [
     {
       "src": "/static/(.*)",
