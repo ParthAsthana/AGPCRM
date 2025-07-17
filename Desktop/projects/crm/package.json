@@ -7,8 +7,13 @@
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm start",
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
-    "build": "cd frontend && npm run build",
-    "start": "cd backend && npm start"
+    "build": "echo 'Use build:frontend for frontend build or build:backend for backend'",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm install",
+    "start": "cd backend && npm start",
+    "start:backend": "cd backend && npm start",
+    "railway:build": "cd backend && npm install",
+    "railway:start": "cd backend && npm start"
   },
   "keywords": ["crm", "chartered-accountant", "task-management", "client-management"],
   "author": "AGP CRM Team",
