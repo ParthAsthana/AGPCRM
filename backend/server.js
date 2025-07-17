@@ -158,6 +158,24 @@ app.post('/api/setup-database', async (req, res) => {
   }
 });
 
+// Debug endpoint to check environment variables
+app.get('/api/debug-env', (req, res) => {
+  const envVars = {
+    NODE_ENV: process.env.NODE_ENV,
+    DATABASE_URL: process.env.DATABASE_URL ? 'SET (hidden for security)' : 'NOT SET',
+    DATABASE_URL_length: process.env.DATABASE_URL ? process.env.DATABASE_URL.length : 0,
+    DATABASE_URL_starts_with: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 15) + '...' : 'N/A',
+    PORT: process.env.PORT,
+    config_databaseUrl: config.databaseUrl ? 'SET' : 'NOT SET',
+    all_env_keys: Object.keys(process.env).filter(key => key.includes('DATABASE')),
+  };
+  
+  res.json({
+    environment_variables: envVars,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
