@@ -1,0 +1,19 @@
+{
+  "name": "agp-crm",
+  "version": "1.0.0",
+  "description": "AGP CRM - Client and Task Management System for Chartered Accountant Practice",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm start",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start"
+  },
+  "keywords": ["crm", "chartered-accountant", "task-management", "client-management"],
+  "author": "AGP CRM Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  }
+} 
