@@ -408,10 +408,10 @@ router.get('/stats/summary', authenticateToken, async (req, res) => {
     ]);
 
     res.json({
-      total_clients: stats[0].total,
-      active_clients: stats[1].total,
-      inactive_clients: stats[2].total,
-      total_documents: stats[3].total
+      total_clients: parseInt(stats[0].total),
+      active_clients: parseInt(stats[1].total),
+      inactive_clients: parseInt(stats[2].total),
+      total_documents: parseInt(stats[3].total)
     });
 
   } catch (error) {

@@ -261,10 +261,10 @@ router.get('/stats/summary', authenticateToken, requireAdmin, async (req, res) =
     ]);
 
     res.json({
-      total_active: stats[0].total,
-      total_admins: stats[1].total,
-      total_employees: stats[2].total,
-      total_inactive: stats[3].total
+      total_active: parseInt(stats[0].total),
+      total_admins: parseInt(stats[1].total),
+      total_employees: parseInt(stats[2].total),
+      total_inactive: parseInt(stats[3].total)
     });
 
   } catch (error) {

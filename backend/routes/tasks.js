@@ -442,12 +442,12 @@ router.get('/stats/summary', authenticateToken, async (req, res) => {
     ]);
 
     res.json({
-      total_tasks: stats[0].total,
-      pending_tasks: stats[1].total,
-      in_progress_tasks: stats[2].total,
-      completed_tasks: stats[3].total,
-      urgent_tasks: stats[4].total,
-      overdue_tasks: stats[5].total
+      total_tasks: parseInt(stats[0].total),
+      pending_tasks: parseInt(stats[1].total),
+      in_progress_tasks: parseInt(stats[2].total),
+      completed_tasks: parseInt(stats[3].total),
+      urgent_tasks: parseInt(stats[4].total),
+      overdue_tasks: parseInt(stats[5].total)
     });
 
   } catch (error) {
