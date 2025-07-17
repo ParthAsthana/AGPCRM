@@ -58,6 +58,105 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Database status endpoint for debugging
+app.get('/api/db-status', async (req, res) => {
+  try {
+    console.log('🔍 Checking database status...');
+    console.log('DATABASE_URL present:', !!process.env.DATABASE_URL);
+    console.log('Database type:', database.type);
+    
+    // Test basic database connection
+    const testQuery = database.type === 'postgresql' 
+      ? 'SELECT NOW() as current_time'
+      : 'SELECT datetime("now") as current_time';
+    
+    const result = await database.get(testQuery);
+    console.log('✅ Database query successful:', result);
+    
+    // Check if users table exists and has admin user
+    let userCount = 0;
+    let adminExists = false;
+    
+    try {
+      const users = await database.all('SELECT COUNT(*) as count FROM users');
+      userCount = users[0]?.count || 0;
+      
+      const admin = await database.get('SELECT id FROM users WHERE email = ?', [config.admin.email]);
+      adminExists = !!admin;
+    } catch (tableError) {
+      console.log('⚠️ Users table might not exist:', tableError.message);
+    }
+    
+    res.json({
+      status: 'OK',
+      database: {
+        type: database.type,
+        connected: true,
+        userCount,
+        adminExists,
+        hasDbUrl: !!process.env.DATABASE_URL
+      },
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Database status check failed:', error);
+    res.status(500).json({
+      status: 'ERROR',
+      database: {
+        type: database.type,
+        connected: false,
+        error: error.message,
+        hasDbUrl: !!process.env.DATABASE_URL
+      },
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Database setup endpoint for production initialization
+app.post('/api/setup-database', async (req, res) => {
+  try {
+    console.log('🚀 Setting up database...');
+    
+    // Import and run the initialization
+    const initializeDatabase = require('./scripts/initDb');
+    
+    // Run initialization
+    await new Promise((resolve, reject) => {
+      // Since initDb closes the connection, we need to handle this carefully
+      const originalClose = database.close;
+      database.close = () => {
+        console.log('⚠️ Skipping database close during setup');
+        resolve();
+      };
+      
+      // Run initialization
+      initializeDatabase().then(resolve).catch(reject);
+      
+      // Restore original close method
+      setTimeout(() => {
+        database.close = originalClose;
+      }, 100);
+    });
+    
+    res.json({
+      status: 'SUCCESS',
+      message: 'Database initialized successfully',
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Database setup failed:', error);
+    res.status(500).json({
+      status: 'ERROR',
+      message: 'Database setup failed',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
