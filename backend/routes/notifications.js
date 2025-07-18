@@ -145,4 +145,26 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// DEBUG: Create test notification
+router.post('/debug-create', authenticateToken, async (req, res) => {
+  try {
+    const { user_id, title, message } = req.body;
+    
+    const result = await database.run(
+      `INSERT INTO notifications (user_id, title, message, type, related_id, related_type)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [user_id || req.user.id, title || 'Debug Test', message || 'Testing notification creation', 'debug', null, null]
+    );
+    
+    res.json({ 
+      message: 'Debug notification created',
+      notification_id: result.id
+    });
+    
+  } catch (error) {
+    console.error('Debug notification creation error:', error);
+    res.status(500).json({ error: 'Failed to create debug notification' });
+  }
+});
+
 module.exports = router; 
