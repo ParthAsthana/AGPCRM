@@ -9,7 +9,7 @@ class NotificationService {
 
   initializeEmailService() {
     // Initialize email service (configure with your SMTP settings)
-    this.emailTransporter = nodemailer.createTransporter({
+    this.emailTransporter = nodemailer.createTransport({
       service: 'gmail', // or your email service
       auth: {
         user: process.env.EMAIL_USER || 'your-email@gmail.com',
