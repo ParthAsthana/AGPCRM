@@ -365,7 +365,7 @@ app.post('/api/setup-notifications', async (req, res) => {
     console.log('🔔 Setting up notifications table...');
     
     const createNotificationsTable = require('./scripts/create-notifications-table');
-    await createNotificationsTable();
+    await createNotificationsTable(false); // Don't close connection when called via API
     
     res.json({
       status: 'SUCCESS',

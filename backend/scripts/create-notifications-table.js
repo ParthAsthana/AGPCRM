@@ -1,8 +1,11 @@
 const database = require('../database/db');
 
-async function createNotificationsTable() {
+async function createNotificationsTable(closeConnection = true) {
   try {
-    database.connect();
+    // Only connect if not already connected
+    if (!database.db && !database.pool) {
+      database.connect();
+    }
     
     console.log('🔔 Creating notifications table...');
     
@@ -48,8 +51,12 @@ async function createNotificationsTable() {
     
   } catch (error) {
     console.error('❌ Error creating notifications table:', error);
+    throw error;
   } finally {
-    database.close();
+    // Only close connection if running standalone
+    if (closeConnection) {
+      database.close();
+    }
   }
 }
 
