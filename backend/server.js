@@ -14,6 +14,7 @@ const userRoutes = require('./routes/users');
 const clientRoutes = require('./routes/clients');
 const taskRoutes = require('./routes/tasks');
 const documentRoutes = require('./routes/documents');
+const notificationRoutes = require('./routes/notifications');
 
 const app = express();
 
@@ -358,6 +359,31 @@ async function createTables() {
   await database.run(commentsSQL);
 }
 
+// Setup notifications table endpoint
+app.post('/api/setup-notifications', async (req, res) => {
+  try {
+    console.log('🔔 Setting up notifications table...');
+    
+    const createNotificationsTable = require('./scripts/create-notifications-table');
+    await createNotificationsTable();
+    
+    res.json({
+      status: 'SUCCESS',
+      message: 'Notifications table created successfully',
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Notifications table setup failed:', error);
+    res.status(500).json({
+      status: 'ERROR',
+      message: 'Notifications table setup failed',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Simple admin user creation endpoint
 app.post('/api/create-admin', async (req, res) => {
   try {
@@ -442,6 +468,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Serve uploaded files
 app.use('/api/uploads', express.static('uploads'));

@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const database = require('../database/db');
 const { authenticateToken, requireAdmin, validateRequired } = require('../middleware/auth');
+const notificationService = require('../services/notificationService');
 
 const router = express.Router();
 
@@ -235,6 +236,21 @@ router.post('/', authenticateToken, validateRequired(['title', 'assigned_to']), 
        WHERE t.id = ?`,
       [result.id]
     );
+
+    // Send notifications if task is assigned to someone other than creator
+    if (assigned_to && assigned_to !== req.user.id) {
+      try {
+        const assignedUser = await database.get('SELECT id, name, email FROM users WHERE id = ?', [assigned_to]);
+        const assignedByUser = { id: req.user.id, name: req.user.name, email: req.user.email };
+        
+        if (assignedUser) {
+          await notificationService.sendTaskAssignmentNotification(newTask, assignedUser, assignedByUser);
+        }
+      } catch (notificationError) {
+        console.error('Error sending task assignment notification:', notificationError);
+        // Don't fail the task creation if notification fails
+      }
+    }
 
     res.status(201).json({
       message: 'Task created successfully',
